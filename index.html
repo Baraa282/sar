@@ -20,7 +20,9 @@
             justify-content: center;
             align-items: center;
             overflow-x: hidden;
-            position: relative;
+            position: fixed; /* Prevent scrolling */
+            width: 100vw;
+            height: 100vh;
         }
 
         .container {
@@ -37,7 +39,7 @@
             padding: 30px;
             width: 100%;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            animation: fadeIn 1.5s ease-in-out;
+            animation: fadeIn 1.5s ease-in-out, heartbeat 2s infinite;
             position: relative;
             z-index: 1;
             border: 2px solid #ffcb6b;
@@ -86,6 +88,15 @@
             color: #ff6f91;
             font-weight: 400;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .cake-emoji {
+            position: absolute;
+            font-size: 1.5em;
+            animation: floatCake 3s infinite ease-in-out;
+            top: -20px;
+            right: -30px;
         }
 
         button {
@@ -99,14 +110,14 @@
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
             margin-top: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 10px #ff6f91;
             width: auto;
             display: inline-block;
         }
 
         button:hover {
             transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), 0 0 15px #ffcb6b;
         }
 
         #confetti {
@@ -183,6 +194,16 @@
             100% { transform: translateX(50%) rotate(45deg); }
         }
 
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes floatCake {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
         /* Responsive Design */
         @media (max-width: 600px) {
             .birthday-card {
@@ -219,8 +240,8 @@
                 Du lyser upp våra liv med din glädje, kreativitet och ditt vackra leende. 
                 Vi älskar dig så mycket och ser fram emot att fira din stora dag tillsammans!
             </p>
-            <p class="signature">Med kärlek, <br>Mamma och Baraa</p>
-            <button id="playSong">Spela Happy Birthday igen!</button>
+            <p class="signature">Med kärlek, <br>Mamma och Baraa <span class="cake-emoji">🎂</span></p>
+            <button id="playSong">Spela/Pausa låten</button>
         </div>
         <div id="confetti"></div>
         <div class="balloons">
@@ -236,28 +257,41 @@
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('birthdaySong');
             const playButton = document.getElementById('playSong');
+            let isPlaying = false;
 
             // Play song automatically on page load
-            audio.play().catch((error) => {
+            audio.play().then(() => {
+                isPlaying = true;
+                playButton.textContent = 'Pausa låten';
+            }).catch((error) => {
                 console.log('Autoplay prevented:', error);
+                playButton.textContent = 'Spela låten';
             });
 
-            // Replay song on button click
+            // Toggle play/pause on button click
             playButton.addEventListener('click', () => {
-                audio.currentTime = 0;
-                audio.play();
-                launchConfetti();
+                if (isPlaying) {
+                    audio.pause();
+                    playButton.textContent = 'Spela låten';
+                    isPlaying = false;
+                } else {
+                    audio.play();
+                    playButton.textContent = 'Pausa låten';
+                    isPlaying = true;
+                    launchConfetti();
+                }
             });
 
             // Confetti animation
             function launchConfetti() {
                 confetti({
-                    particleCount: 100,
-                    spread: 80,
+                    particleCount: 150,
+                    spread: 100,
                     origin: { y: 0.5 },
-                    colors: ['#ff6f91', '#ffcb6b', '#c3e88d', '#82cffa'],
-                    shapes: ['circle', 'square', 'star'],
-                    scalar: 1,
+                    colors: ['#ff6f91', '#ffcb6b', '#c3e88d', '#82cffa', '#f28f38'],
+                    shapes: ['circle', 'square', 'star', 'triangle'],
+                    scalar: 1.2,
+                    ticks: 200,
                 });
             }
 
